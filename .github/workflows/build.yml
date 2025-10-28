@@ -31,8 +31,10 @@ jobs:
 
       - name: Add extra packages (themes & plugins)
         run: |
-          cd source/package/lean
-          # 美观主题
+          mkdir -p source/package/custom
+          cd source/package/custom
+          
+          # Argon Theme
           git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git
           git clone --depth=1 https://github.com/jerrykuku/luci-app-argon-config.git
           
@@ -47,10 +49,12 @@ jobs:
       - name: Configure target device
         run: |
           cd source
-          rm -f .config
-          # WR30U (MT7981)
-          make menuconfig
-          # ⚠️ 注意：你可以预置一个 .config 放在仓库根目录，然后替换掉上面 menuconfig 步骤
+          # 如果仓库中有自定义 .config，则直接使用
+          if [ -f ../.config ]; then
+            cp ../.config .config
+          else
+            echo "⚙️ 未检测到自定义 .config，请在仓库根目录放置一份"
+          fi
 
       - name: Enable build cache
         uses: actions/cache@v4
