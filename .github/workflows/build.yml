@@ -49,12 +49,24 @@ jobs:
       - name: Configure target device
         run: |
           cd source
-          # 如果仓库中有自定义 .config，则直接使用
           if [ -f ../.config ]; then
+            echo "Using custom .config from repository root"
             cp ../.config .config
           else
-            echo "⚙️ 未检测到自定义 .config，请在仓库根目录放置一份"
+            echo "No .config found, using default for mt7981 (Mi Router WR30U)"
+            # 默认配置 MT7981 机型
+            cat >> .config <<EOF
+CONFIG_TARGET_mediatek=y
+CONFIG_TARGET_mediatek_filogic=y
+CONFIG_TARGET_mediatek_filogic_DEVICE_xiaomi_mi-router-wr30u=y
+CONFIG_PACKAGE_luci=y
+CONFIG_PACKAGE_luci-theme-argon=y
+CONFIG_PACKAGE_luci-app-argon-config=y
+CONFIG_PACKAGE_luci-app-ddns-go=y
+CONFIG_PACKAGE_luci-app-openclash=y
+EOF
           fi
+          make defconfig
 
       - name: Enable build cache
         uses: actions/cache@v4
